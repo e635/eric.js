@@ -189,7 +189,7 @@ const Eric = (function () {
 					return contain;
 				},
 				
-				somewhere() {
+				any() {
 					let found = false;
 					self.each((elm) => {
 						if (e(elm).class(classnames).has())

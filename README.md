@@ -6,7 +6,7 @@ Many similar libraries add so many features, that they have become bloated and s
 
 `eric.js` aims to replace the most utilised features of jQuery and is of similar usage.
 
-This library is by far not extensive yet, but the most necessary features are already implemented and ready for you to be used.
+This library is by far not extensive yet, but the most necessary features are already implemented and ready to be used.
 
 We will update this package as required by your suggestions and our own use cases.
 
@@ -214,7 +214,7 @@ Example:
 e('nav .menu-item').class('is-active').unify();
 ```
 ```javascript
-// Ensures, that all selected elements either do or do not have the desired class before toggling.
+// Ensures that all selected elements either do or do not have the desired class before toggling.
 e('nav .menu-item').class('is-active').unify(true).toggle();
 ```
 
@@ -240,13 +240,13 @@ if (e('nav .menu-item').class('is-active').have()) {
 }
 ```
 
-#### `e().class(classnames).somewhere()`
+#### `e().class(classnames).any()`
 
 > Returns a boolean, whether any of the selected element’s `classList`s contain the given `classnames`.
 
 Example:
 ```javascript
-if (e('nav .menu-item').class('is-active').somewhere()) {
+if (e('nav .menu-item').class('is-active').any()) {
     // At least one of the selected elements has class 'is-active'.
 }
 ```
