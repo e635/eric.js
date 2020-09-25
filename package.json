@@ -1,0 +1,22 @@
+{
+    "name": "eric.js",
+    "version": "1.0.0",
+    "description": "",
+    "main": "eric.js",
+    "scripts": {
+        "build": "set NODE_ENV=production&&node build.js"
+    },
+    "keywords": [],
+    "author": "Eric Gesemann",
+    "license": "ISC",
+    "devDependencies": {
+        "steal": "^2.2.4",
+        "steal-tools": "^2.2.6"
+    },
+    "steal": {
+        "main": "build",
+        "npmIgnore": [
+            "devDependencies"
+        ]
+    }
+}

@@ -1,0 +1,1 @@
+window.e = require('./eric.js')
