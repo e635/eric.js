@@ -44,12 +44,9 @@ e(function () {
 
 > Lets you specify a list of elements, or a single one to select and use.
 
-Valid `object` types are `Eric`, `Array`, `HTMLCollection`, `NodeList`, `HTMLElement` and `Node`.
+Valid `object` types are `Eric`, `Array`, `HTMLCollection`, `NodeList`, and `Node`.
 
 If `query` is of an invalid object type, the selection will be empty instead.
-
-<!--Type checks on `Array` elements are not performed, hence you should ensure given arrays to only include valid
-`HTMLElement`s or `Nodes`.-->
 
 If `query instanceof Eric`, `query` will be cloned.
 
@@ -95,7 +92,7 @@ let myBroaderSelection = e('#demoid, .exampleclass, .testclass');
 
 > Set the current selection of elements of an __`eric` *instance*__.
 
-Valid `elements` parameter types are `Array`, `HTMLCollection`, `NodeList`, `HTMLElement` and `Node`.
+Valid `elements` parameter types are `Array`, `HTMLCollection`, `NodeList` and `Node`.
 
 ### `e().select(query)`
 
@@ -109,7 +106,7 @@ Equivalent to `e(query)` or `eric.query(query).all().select()`.
 
 > Append elements to the current selection of an __`eric` *instance*__.
 
-Valid `query` types are `String`, `Array`, `HTMLCollection`, `NodeList`, `HTMLElement` and `Node`.
+Valid `query` types are `String`, `Array`, `HTMLCollection`, `NodeList` and `Node`.
 
 If `typeof query === 'string'`, this is equivalent to `eric.query(query).all().push()`.
 
@@ -143,13 +140,13 @@ Equivalent to `e(document.getElementsByClassName(query))`.
 
 > Returns the first of the selected elements.
 
-If `nullable = false`, an empty `HTMLElement` is returned instead of `null`, if no elements are selected.
+If `nullable = false`, an empty `TextNode` is returned instead of `null`, if no elements are selected.
 
 ### `e().last(nullable = true)`
 
 > Returns the last of the selected elements.
 
-If `nullable = false`, an empty `HTMLElement` is returned instead of `null`, if no elements are selected.
+If `nullable = false`, an empty `TextNode` is returned instead of `null`, if no elements are selected.
 
 ### `e().each(callback)`
 
@@ -347,6 +344,10 @@ These can be used independently of `eric` instances.
 
 ### `e.isElement(o)`
 
+> **[static]** Check if `o` actually is an instance of `Element`. Returns boolean.
+
+### `e.isHTMLElement(o)`
+
 > **[static]** Check if `o` actually is an instance of `HTMLElement`. Returns boolean.
 
 ### `e.mix(controller, mix)`
@@ -355,4 +356,4 @@ These can be used independently of `eric` instances.
 
 ### `e.elementList(elements = [])`
 
-> **[static]** Create an array from a given `HTMLCollection`, `NodeList`, `Array`, `HTMLElement` or `Node`.
+> **[static]** Create an array from a given `HTMLCollection`, `NodeList`, `Array` or `Node`.

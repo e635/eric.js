@@ -4,14 +4,15 @@ const Eric = (function () {
 		Array.prototype.filter = function(func, thisArg) {
 			'use strict';
 			
+			// noinspection JSTypeOfValues
 			if (!((typeof func === 'Function' || typeof func === 'function') && this) )
 				throw new TypeError();
 
-			var len = this.length >>> 0,
+			let len = this.length >>> 0,
 				res = new Array(len),
 				t = this, c = 0, i = -1;
 
-			var kValue;
+			let kValue;
 			if (thisArg === undefined)
 				while (++i !== len)
 					if (i in this) {
@@ -61,28 +62,28 @@ const Eric = (function () {
 		this.first = function (nullable = true) {
 			if (this.elements.hasOwnProperty(0))
 				return this.elements[0];
-			return nullable ? null : document.createElement();
+			return nullable ? null : document.createTextNode('');
 		};
 		
 		this.last = function (nullable = true) {
 			if (this.elements.hasOwnProperty(this.elements.length - 1))
 				return this.elements[this.elements.length - 1];
-			return nullable ? null : document.createElement();
+			return nullable ? null : document.createTextNode('');
 		};
 		
 		this.query = function (query) {
-			let self = this;
-			let selection = null;
-			let options = {
-				select() {
-					self.set(selection);
-					return self;
-				},
-				append() {
-					self.append(selection);
-					return self;
-				}
-			}
+			let self = this,
+				selection = null,
+				options = {
+					select() {
+						self.set(selection);
+						return self;
+					},
+					append() {
+						self.append(selection);
+						return self;
+					}
+				};
 			options.selection = selection;
 			return {
 				first() {
@@ -112,7 +113,6 @@ const Eric = (function () {
 		this.append = function (query) {
 			if (typeof query === "string")
 				return this.query(query).all().append();
-			
 			this.elements = this.elements.concat(this.createList(query));
 			return this;
 		};
@@ -127,7 +127,7 @@ const Eric = (function () {
 		};
 		
 		this.find = function (query) {
-			var found = [];
+			let found = [];
 			this.each((elm) => {
 				let inner = elm.querySelectorAll(query);
 				inner = Array.prototype.slice.call(inner);
@@ -161,7 +161,7 @@ const Eric = (function () {
 				},
 				
 				toggle(returnClass = false) {
-					this.each(function (elm) {
+					self.each(function (elm) {
 						if (elm.classList.contains(classnames))
 							elm.classList.remove(classnames);
 						else
@@ -279,20 +279,26 @@ const Eric = (function () {
 	
 	Eric.prototype.isElement = function(o) {
 		return (
+			(typeof Element === "object") ? (o instanceof Element) :
+				o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName === "string"
+		);
+	};
+	
+	Eric.prototype.isHTMLElement = function(o) {
+		return (
 			(typeof HTMLElement === "object") ? (o instanceof HTMLElement) :
 				o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName === "string"
 		);
 	};
 	
 	Eric.prototype.mix = function(controller, mix) {
-		for (var i in mix)
+		for (let i in mix)
 			if (mix.hasOwnProperty(i))
 				controller[i] = mix[i];
 	};
 	
 	Eric.prototype.createList = function(elements = []) {
-		let self = this;
-		let list = [];
+		let self = this, list;
 		
 		if (HTMLCollection.prototype.isPrototypeOf(elements)
 			|| NodeList.prototype.isPrototypeOf(elements)
@@ -302,7 +308,7 @@ const Eric = (function () {
 			list = [elements];
 		
 		return list.filter(function (value) {
-			return self.isElement(value) || self.isNode(value);
+			return self.isNode(value);
 		});
 	};
 	
