@@ -1,8 +1,8 @@
 {
     "name": "eric.js",
-    "version": "1.0.0",
-    "description": "",
-    "main": "eric.js",
+    "version": "0.1.1",
+    "description": "A fast and tiny DOM navigation and manipulation library.",
+    "main": "src/eric.js",
     "scripts": {
         "build": "set NODE_ENV=production&&node build.js"
     },
