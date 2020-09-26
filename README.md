@@ -307,7 +307,7 @@ let oldValue = myInput.data('old');
 // oldValue === 'old input value'
 
 // => Thus:
-myInput.data('old', undefined);
+myInput.data('old', false);
 myInput.data('info', 'example value');
 ```
 ```html
@@ -354,6 +354,9 @@ These can be used independently of `eric` instances.
 
 > **[static]** Add all properties of `mix` as properties to `controller`.
 
-### `e.elementList(elements = [])`
+### `e.listElements(elements = [])`
 
 > **[static]** Create an array from a given `HTMLCollection`, `NodeList`, `Array` or `Node`.
+
+### `e.emptyNode()`
+> **[static]** Create an empty `TextNode`.

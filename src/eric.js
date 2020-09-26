@@ -1,40 +1,67 @@
 const Eric = (function () {
 	
 	if (!Array.prototype.filter) {
-		Array.prototype.filter = function(func, thisArg) {
+		Array.prototype.filter = function (func, thisArg) {
 			'use strict';
 			
 			// noinspection JSTypeOfValues
-			if (!((typeof func === 'Function' || typeof func === 'function') && this) )
+			if (!((typeof func === 'Function' || typeof func === 'function') && this))
 				throw new TypeError();
-
+			
 			let len = this.length >>> 0,
 				res = new Array(len),
 				t = this, c = 0, i = -1;
-
+			
 			let kValue;
-			if (thisArg === undefined)
+			if (thisArg === undefined) {
 				while (++i !== len)
 					if (i in this) {
 						kValue = t[i];
 						if (func(t[i], i, t))
 							res[c++] = kValue;
 					}
-			else
+			} else {
 				while (++i !== len)
 					if (i in this) {
 						kValue = t[i];
 						if (func.call(thisArg, t[i], i, t))
 							res[c++] = kValue;
 					}
+			}
 			
 			res.length = c;
 			return res;
 		};
 	}
 	
-    'use strict';
-    
+	if (!Array.prototype.forEach) {
+		Array.prototype.forEach = function (callback, thisArg) {
+			if (this == null)
+				throw new TypeError('Array.prototype.forEach called on null or undefined');
+			
+			if (typeof callback !== "function")
+				throw new TypeError(callback + ' is not a function');
+			
+			let T, k,
+				O = Object(this),
+				len = O.length >>> 0;
+			
+			if (arguments.length > 1) T = thisArg;
+			
+			k = 0;
+			while (k < len) {
+				let kValue;
+				if (k in O) {
+					kValue = O[k];
+					callback.call(T, kValue, k, O);
+				}
+				k++;
+			}
+		};
+	}
+	
+	'use strict';
+	
 	let Eric = function (query = null) {
 		
 		if (!(this instanceof Eric)) {
@@ -42,6 +69,7 @@ const Eric = (function () {
 		}
 		
 		this.elements = [];
+		this.length = this.elements.length;
 		
 		this.init = function (query) {
 			
@@ -59,18 +87,6 @@ const Eric = (function () {
 			
 		};
 		
-		this.first = function (nullable = true) {
-			if (this.elements.hasOwnProperty(0))
-				return this.elements[0];
-			return nullable ? null : document.createTextNode('');
-		};
-		
-		this.last = function (nullable = true) {
-			if (this.elements.hasOwnProperty(this.elements.length - 1))
-				return this.elements[this.elements.length - 1];
-			return nullable ? null : document.createTextNode('');
-		};
-		
 		this.query = function (query) {
 			let self = this,
 				selection = null,
@@ -79,12 +95,15 @@ const Eric = (function () {
 						self.set(selection);
 						return self;
 					},
-					append() {
-						self.append(selection);
+					push() {
+						self.push(selection);
+						return self;
+					},
+					unshift() {
+						self.unshift(selection);
 						return self;
 					}
 				};
-			options.selection = selection;
 			return {
 				first() {
 					selection = document.querySelector(query);
@@ -106,14 +125,8 @@ const Eric = (function () {
 		};
 		
 		this.set = function (elements) {
-			this.elements = this.createList(elements);
-			return this;
-		};
-		
-		this.append = function (query) {
-			if (typeof query === "string")
-				return this.query(query).all().append();
-			this.elements = this.elements.concat(this.createList(query));
+			this.elements = this.listElements(elements);
+			this.length = this.elements.length;
 			return this;
 		};
 		
@@ -121,7 +134,54 @@ const Eric = (function () {
 			return this.query(query).all().select();
 		};
 		
-		this.each = function(callback) {
+		this.push = function (query) {
+			if (typeof query === "string")
+				return this.query(query).all().push();
+			this.elements = this.elements.concat(this.listElements(query));
+			this.length = this.elements.length;
+			return this;
+		};
+		
+		this.pop = function (getNode = false, empty = true) {
+			let node = this.elements.pop();
+			this.length = this.elements.length;
+			if (node === undefined)
+				return empty ? (getNode ? this.emptyNode : Eric)() : undefined;
+			return getNode ? node : Eric(node);
+		};
+		
+		this.unshift = function (query) {
+			if (typeof query === "string")
+				this.elements = Eric().query(query).all().select().elements.concat(this.elements);
+			else
+				this.elements = this.listElements(query).concat(this.elements);
+			this.length = this.elements.length;
+			return this;
+		};
+		
+		this.shift = function (getNode = false, empty = true) {
+			let node = this.elements.shift();
+			this.length = this.elements.length;
+			if (node === undefined)
+				return empty ? (getNode ? this.emptyNode : Eric)() : undefined;
+			return getNode ? node : Eric(node);
+		};
+		
+		this.get = function (n, getNode = false, empty = true) {
+			if (this.elements.hasOwnProperty(n))
+				return getNode ? this.elements[n] : Eric(this.elements[n]);
+			return empty ? (getNode ? this.emptyNode : Eric)() : undefined;
+		};
+		
+		this.first = function (getNode = false, empty = true) {
+			return this.get(0, getNode, empty);
+		};
+		
+		this.last = function (getNode = false, empty = true) {
+			return this.get(this.elements.length - 1, getNode, empty);
+		};
+		
+		this.each = function (callback) {
 			Eric.forEach(this.elements, callback);
 			return this;
 		};
@@ -136,7 +196,7 @@ const Eric = (function () {
 			return this.set(found);
 		};
 		
-		this.on = function(event, callback, whileCapture = false) {
+		this.on = function (event, callback, whileCapture = false) {
 			return this.each(function (elm) {
 				elm.addEventListener(event, callback, whileCapture);
 			});
@@ -200,7 +260,7 @@ const Eric = (function () {
 			}
 		};
 		
-		this.attr = function(key, value = null) {
+		this.attr = function (key, value = null) {
 			
 			if (typeof key !== "string")
 				return null;
@@ -266,38 +326,35 @@ const Eric = (function () {
 		this.init(query);
 	};
 	
-	Eric.prototype.forEach = function(elements, callback) {
+	Eric.prototype.forEach = function (elements, callback) {
 		Array.prototype.forEach.call(elements, callback);
 	};
 	
-	Eric.prototype.isNode = function(o) {
+	Eric.prototype.isNode = function (o) {
 		return (
 			(typeof Node === "object") ? (o instanceof Node) :
 				o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName === "string"
 		);
 	};
 	
-	Eric.prototype.isElement = function(o) {
+	Eric.prototype.isElement = function (o, prototype = Element) {
 		return (
-			(typeof Element === "object") ? (o instanceof Element) :
+			(typeof prototype === "object") ? (o instanceof prototype) :
 				o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName === "string"
 		);
 	};
 	
-	Eric.prototype.isHTMLElement = function(o) {
-		return (
-			(typeof HTMLElement === "object") ? (o instanceof HTMLElement) :
-				o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName === "string"
-		);
+	Eric.prototype.isHTMLElement = function (o) {
+		return Eric.prototype.isElement(o, HTMLElement);
 	};
 	
-	Eric.prototype.mix = function(controller, mix) {
+	Eric.prototype.mix = function (controller, mix) {
 		for (let i in mix)
 			if (mix.hasOwnProperty(i))
 				controller[i] = mix[i];
 	};
 	
-	Eric.prototype.createList = function(elements = []) {
+	Eric.prototype.listElements = function (elements = []) {
 		let self = this, list;
 		
 		if (HTMLCollection.prototype.isPrototypeOf(elements)
@@ -312,14 +369,43 @@ const Eric = (function () {
 		});
 	};
 	
+	Eric.prototype.emptyNode = function () {
+		return document.createTextNode('');
+	};
+	
+	let ericonf = {
+		__proto__: {
+			windowIndex: 'e'
+		},
+		get windowIndex() {
+			return this.__proto__.windowIndex;
+		},
+		set windowIndex(val) {
+			this.__proto__.windowIndex = val;
+			if (typeof window !== 'undefined' && !window.hasOwnProperty(val))
+				window[val] = Eric;
+		},
+	};
+	
+	Object.defineProperty(Eric, 'config', {
+		get: function config() {
+			return ericonf;
+		},
+		set: function config(value) {
+			Eric.mix(ericonf, value);
+		}
+	});
+	
 	Eric.__proto__ = Eric.prototype;
-    
-    return Eric;
+	
+	return Eric;
 	
 })();
 
+Eric(() => {
+	if (typeof window !== 'undefined')
+		window[Eric.config.windowIndex] = Eric;
+});
+
 if (typeof module !== 'undefined')
 	module.exports = Eric;
-
-if (typeof window !== 'undefined')
-	window.e = Eric;
