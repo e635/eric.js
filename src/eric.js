@@ -383,7 +383,7 @@ const Eric = (function () {
 		set windowIndex(val) {
 			this.__proto__.windowIndex = val;
 			if (typeof window !== 'undefined' && !window.hasOwnProperty(val))
-				window[val] = Eric;
+				window[val.toString()] = Eric;
 		},
 	};
 	

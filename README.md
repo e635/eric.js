@@ -71,7 +71,7 @@ let myWrappers3 = e().select('#wrapper');
 // cloning it
 let myWrappers4 = e(myWrappers3);
 ```
-[More on query selectors and pushing elements to `eric` instances &hellip;](#query-query)
+[More on query selectors and pushing elements to `eric` instances &hellip;](#equeryquery)
 ```javascript
 // select first element of id 'demoid' and all with classname 'exampleclass'
 let myElements = [
@@ -88,11 +88,15 @@ let mySelection = e(myElements);
 let myBroaderSelection = e('#demoid, .exampleclass, .testclass');
 ```
 
+
+## Selecting elements
+
 ### `e().set(elements)`
 
 > Set the current selection of elements of an __`eric` *instance*__.
 
 Valid `elements` parameter types are `Array`, `HTMLCollection`, `NodeList` and `Node`.
+
 
 ### `e().select(query)`
 
@@ -102,6 +106,43 @@ Here, `query` has to be a `String`.
 
 Equivalent to `e(query)` or `eric.query(query).all().select()`.
 
+
+### <span name="equeryquery" id="equeryquery"></span>`e().query(query)`
+
+> Change the current selection of an __`eric` *instance*__.
+
+Here, only a `string` is expected as `query` parameter.
+
+`eric.query(query)` returns an object with the following methods. Each of these methods returns an object of options to
+either `select()` queried elements to replace the current selection, or `push()` them to or `unshift()` them into the
+existing selection of elements; these two methods return the modified `eric` instance.
+
+#### `eric.query(query).first().select()`,<br>`eric.query(query).first().push()`,<br>`eric.query(query).first().unshift()`
+
+Uses `document.querySelector(query)` to select elements.
+
+#### `eric.query(query).all().select()`,<br>`eric.query(query).all().push()`,<br>`eric.query(query).all().unshift()`
+
+Uses `document.querySelectorAll(query)` to select elements.
+
+#### `eric.query(query).id().select()`,<br>`eric.query(query).id().push()`,<br>`eric.query(query).id().unshift()`
+
+Uses `document.getElementById(query)` to select elements.
+
+#### `eric.query(query).classname().select()`,<br>`eric.query(query).classname().push()`,<br>`eric.query(query).classname().unshift()`
+
+Uses `document.getElementsByClassName(query)` to select elements.
+
+
+### `e().find(query)`
+
+> Change the selection to any child elements of the current selection matching the given query.
+
+Use a `String` for `query`.
+
+---
+
+
 ### `e().push(query)`
 
 > Append elements to the current selection of an __`eric` *instance*__.
@@ -110,53 +151,62 @@ Valid `query` types are `String`, `Array`, `HTMLCollection`, `NodeList` and `Nod
 
 If `typeof query === 'string'`, this is equivalent to `eric.query(query).all().push()`.
 
-### <span name="query-query" id="query-query"></span>`e().query(query)`
 
-> Change the current selection of an __`eric` *instance*__.
+### `e().pop(getNode = false, empty = true)`
 
-Here, only a `string` is expected as `query` parameter.
+> Pop the last element off of the current selection of an __`eric` *instance*__.
 
-`eric.query(query)` returns an object with the following methods. Each of these methods returns an object of options to
-either `select()` queried elements or `push()` them to the existing selection of elements; these two methods return
-the modified `eric` instance.
+If `getNode == true`, the actual `Node`/`HTMLElement` is returned instead of a new `eric` instance containing the popped element.
 
-#### `eric.query(query).first().select()` and<br>`eric.query(query).first().push()`
+__If the current selection is empty__, whereupon no element can be popped:
+* An empty eric instance will be returned by default (`empty == true`), on `empty == false`, `undefined` will be
+returned instead;
+* If `(getNode && empty) == true`, an empty `e.emptyNode()` will be returned.
 
-Equivalent to `e(document.querySelector(query))`.
 
-#### `eric.query(query).all().select()` and<br>`eric.query(query).all().push()`
+### `e().unshift(query)`
 
-Equivalent to `e(document.querySelectorAll(query))` and `e(query)`.
+> Prepend elements to the current selection of an __`eric` *instance*__.
 
-#### `eric.query(query).id().select()` and<br>`eric.query(query).id().push()`
+Valid `query` types are `String`, `Array`, `HTMLCollection`, `NodeList` and `Node`.
 
-Equivalent to `e(document.getElementById(query))`.
+If `typeof query === 'string'`, this is equivalent to `eric.query(query).all().unshift()`.
 
-#### `eric.query(query).classname().select()` and<br>`eric.query(query).classname().push()`
 
-Equivalent to `e(document.getElementsByClassName(query))`.
+### `e().shift(getNode = false, empty = true)`
+
+> Pop the first element off of the current selection of an __`eric` *instance*__.
+
+If `getNode == true`, the actual `Node`/`HTMLElement` is returned instead of a new `eric` instance containing the popped element.
+
+__If the current selection is empty__, whereupon no element can be popped:
+* An empty eric instance will be returned by default (`empty == true`), on `empty == false`, `undefined` will be
+returned instead;
+* If `(getNode && empty) == true`, an empty `e.emptyNode()` will be returned.
+
+
+## Get selected elements
 
 ### `e().first(nullable = true)`
 
 > Returns the first of the selected elements.
 
-If `nullable = false`, an empty `TextNode` is returned instead of `null`, if no elements are selected.
+If `nullable = false` and no elements are currently selected, an empty `e.emptyNode()` is returned instead of `null`.
 
 ### `e().last(nullable = true)`
 
 > Returns the last of the selected elements.
 
-If `nullable = false`, an empty `TextNode` is returned instead of `null`, if no elements are selected.
+If `nullable = false` and no elements are currently selected, an empty `e.emptyNode()` is returned instead of `null`.
+
+
+## Manipulate elements
 
 ### `e().each(callback)`
 
 > Executes the `callback` function for each selected element.
 
-Calls `e.forEach(elements, callback)` with the given `callback` on the selected elements.
-
-### `e().find(query)`
-
-> Change the selection to any child elements of the current selection matching the given query. 
+Calls `e.forEach(elements, callback)` with the given `callback` on the selected elements. 
 
 ### `e().on(event, callback, whileCapture = false)`
 
@@ -169,6 +219,10 @@ e('button').on('click', function (event) {
     alert('button clicked')
 });
 ```
+
+
+---
+
 
 ### `e().class(classnames)`
 
@@ -251,6 +305,10 @@ if (e('nav .menu-item').class('is-active').any()) {
 }
 ```
 
+
+---
+
+
 ### `e().attr(key, value = null)`
 
 > Manipulate attributes of the selected elements.
@@ -327,9 +385,14 @@ myInput.data('info', 'example value');
 
 > Get the `value` attribute of the first selected element or change it on all.
 
+
+---
+
+
 ### `e().focus()`
 
 > Focus the first selected element.
+
 
 ## Static methods
 These can be used independently of `eric` instances.
