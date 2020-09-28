@@ -34,30 +34,15 @@ const Eric = (function () {
 		};
 	}
 	
-	if (!Array.prototype.forEach) {
-		Array.prototype.forEach = function (callback, thisArg) {
-			if (this == null)
-				throw new TypeError('Array.prototype.forEach called on null or undefined');
-			
-			if (typeof callback !== "function")
-				throw new TypeError(callback + ' is not a function');
-			
-			let T, k,
-				O = Object(this),
-				len = O.length >>> 0;
-			
-			if (arguments.length > 1) T = thisArg;
-			
-			k = 0;
-			while (k < len) {
-				let kValue;
-				if (k in O) {
-					kValue = O[k];
-					callback.call(T, kValue, k, O);
-				}
-				k++;
+	if (!Text.prototype.innerText) {
+		Object.defineProperty(Text.prototype, 'innerText', {
+			get: function innerText() {
+				return this.textContent;
+			},
+			set: function innerText(value) {
+				this.textContent = value;
 			}
-		};
+		});
 	}
 	
 	'use strict';
@@ -69,7 +54,17 @@ const Eric = (function () {
 		}
 		
 		this.elements = [];
-		this.length = this.elements.length;
+		
+		Object.defineProperty(this, 'length', {
+			enumerable: true,
+			configurable: false,
+			get: function length() {
+				return this.elements.length;
+			},
+			set: function length(value) {
+				throw new SyntaxError('eric.length cannot be overridden.')
+			}
+		});
 		
 		this.init = function (query) {
 			
@@ -83,7 +78,8 @@ const Eric = (function () {
 				return this.set(query);
 			
 			if (typeof query === "function")
-				document.addEventListener("DOMContentLoaded", query);
+				if (document.readyState !== "loading") query()
+				else document.addEventListener("DOMContentLoaded", query);
 			
 		};
 		
@@ -126,7 +122,6 @@ const Eric = (function () {
 		
 		this.set = function (elements) {
 			this.elements = this.listElements(elements);
-			this.length = this.elements.length;
 			return this;
 		};
 		
@@ -138,13 +133,11 @@ const Eric = (function () {
 			if (typeof query === "string")
 				return this.query(query).all().push();
 			this.elements = this.elements.concat(this.listElements(query));
-			this.length = this.elements.length;
 			return this;
 		};
 		
 		this.pop = function (getNode = false, empty = true) {
 			let node = this.elements.pop();
-			this.length = this.elements.length;
 			if (node === undefined)
 				return empty ? (getNode ? this.emptyNode : Eric)() : undefined;
 			return getNode ? node : Eric(node);
@@ -155,13 +148,11 @@ const Eric = (function () {
 				this.elements = Eric().query(query).all().select().elements.concat(this.elements);
 			else
 				this.elements = this.listElements(query).concat(this.elements);
-			this.length = this.elements.length;
 			return this;
 		};
 		
 		this.shift = function (getNode = false, empty = true) {
 			let node = this.elements.shift();
-			this.length = this.elements.length;
 			if (node === undefined)
 				return empty ? (getNode ? this.emptyNode : Eric)() : undefined;
 			return getNode ? node : Eric(node);
@@ -181,8 +172,8 @@ const Eric = (function () {
 			return this.get(this.elements.length - 1, getNode, empty);
 		};
 		
-		this.each = function (callback) {
-			Eric.forEach(this.elements, callback);
+		this.each = function (callback, thisArg = undefined) {
+			Eric.forEach(this.elements, callback, thisArg);
 			return this;
 		};
 		
@@ -193,13 +184,18 @@ const Eric = (function () {
 				inner = Array.prototype.slice.call(inner);
 				found = found.concat(inner);
 			});
-			return this.set(found);
+			return Eric(found);
 		};
 		
-		this.on = function (event, callback, whileCapture = false) {
+		this.bind = function (event, callback, whileCapture = false) {
 			return this.each(function (elm) {
 				elm.addEventListener(event, callback, whileCapture);
 			});
+		};
+		
+		this.trigger = function (event) {
+			event = event instanceof Event ? event : new Event(event.toString());
+			this.each(elm => elm.dispatchEvent(event));
 		};
 		
 		this.class = function (classnames) {
@@ -261,12 +257,10 @@ const Eric = (function () {
 		};
 		
 		this.attr = function (key, value = null) {
-			
-			if (typeof key !== "string")
-				return null;
+			if (typeof key !== "string") return null;
 			
 			if (value === null)
-				return this.first(false).getAttribute(key);
+				return this.first(true).getAttribute(key);
 			
 			if (value === false) {
 				return this.each((elm) => {
@@ -279,7 +273,6 @@ const Eric = (function () {
 			});
 			
 			return this;
-			
 		};
 		
 		this.data = function (key, value = null) {
@@ -290,21 +283,20 @@ const Eric = (function () {
 		};
 		
 		this.text = function (value = null) {
-			
 			if (value === null)
-				return this.first(false).innerText;
-			
+				return this.first(true).innerText;
 			return this.each(function (elm) {
-				elm.innerText = value;
+				elm.textContent = value;
 			});
-			
+		};
+		
+		this.getTextContent = function () {
+			return this.first(true).textContent;
 		};
 		
 		this.html = function (value = null) {
-			
 			if (value === null)
-				return this.first(false).innerHTML;
-			
+				return this.first(true).innerHTML;
 			return this.each(function (elm) {
 				elm.innerHTML = value;
 			});
@@ -312,6 +304,97 @@ const Eric = (function () {
 		
 		this.val = function (value = null) {
 			return this.attr('value', value);
+		};
+		
+		this.create = function (tag, options = {}) {
+			let elm = document.createElement(tag);
+			if (options)
+				this.mix(elm, options);
+			if (options.attributes)
+				for (const key in options.attributes)
+					if (options.attributes.hasOwnProperty(key))
+						elm.setAttribute(key, options.attributes[key]);
+			if (options.prepend)
+				this.unshift(elm);
+			else
+				this.push(elm);
+			return this;
+		};
+		
+		this.attach = function (parent, cloneAttach = false) {
+			parent = Eric(parent);
+			if (cloneAttach) {
+				this.each((elm) => {
+					parent.each((p) => {
+						p.appendChild(elm.cloneNode(true));
+					}, this);
+				}, this);
+			} else {
+				let p = parent.first(true);
+				this.each((elm) => {
+					p.appendChild(elm);
+				});
+			}
+			return this;
+		};
+		
+		this.append = function (elements, cloneAppend = false) {
+			elements = Eric(elements);
+			if (cloneAppend) {
+				this.each((p) => {
+					elements.each((elm) => {
+						p.appendChild(elm.cloneNode(true));
+					}, this);
+				});
+			} else {
+				let p = this.first(true);
+				elements.each((elm) => {
+					p.appendChild(elm);
+				});
+			}
+		};
+		
+		this.parents = function (getNodes = false) {
+			let parents = [];
+			this.each((elm) => {
+				if (elm.parentElement)
+					parents.push(elm.parentElement);
+			});
+			return getNodes ? parents : Eric(parents);
+		}
+		
+		this.remove = function (retain = false) {
+			this.each((elm) => {
+				if (!elm)
+					throw new TypeError(elm + ' does not exist.');
+				
+				let removable = !!elm.remove,
+					hasParent = !!elm.parentNode;
+				
+				if (!removable && !hasParent)
+					throw new TypeError(elm + ' cannot be removed.');
+				
+				if (removable && (retain || !hasParent))
+					elm.remove();
+				else
+					elm.parentNode.removeChild(elm);
+			});
+			if (!retain) this.elements = [];
+			return this;
+		};
+		
+		this.empty = function (textContentMode = true, retainText = false) {
+			if (retainText)
+				this.each((elm) => {
+					while (elm.lastElementChild)
+						elm.removeChild(elm.lastElementChild);
+				});
+			else
+				if (textContentMode)
+					this.each(elm => elm.textContent = '');
+				else
+					this.each(elm => elm.innerHTML = '');
+			return this;
 		};
 		
 		this.focus = function () {
@@ -326,8 +409,19 @@ const Eric = (function () {
 		this.init(query);
 	};
 	
-	Eric.prototype.forEach = function (elements, callback) {
-		Array.prototype.forEach.call(elements, callback);
+	Eric.prototype.forEach = function (elements, callback, thisArg = undefined) {
+		if (Array.prototype.forEach)
+		 	return Array.prototype.forEach.call(elements, callback, thisArg);
+		
+		if (typeof callback !== "function")
+			throw new TypeError(callback + ' is not a function');
+		
+		let T, k, O = Object(elements), len = O.length >>> 0;
+		
+		if (arguments.length > 2) T = thisArg;
+		
+		k = 0;
+		while (k < len) if (k in O) callback.call(T, O[k], k, O) || k++;
 	};
 	
 	Eric.prototype.isNode = function (o) {
@@ -371,6 +465,10 @@ const Eric = (function () {
 	
 	Eric.prototype.emptyNode = function () {
 		return document.createTextNode('');
+	};
+	
+	Eric.prototype.create = function (tag, options = {}) {
+		return Eric().create(tag, options);
 	};
 	
 	let ericonf = {

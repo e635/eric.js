@@ -136,9 +136,12 @@ Uses `document.getElementsByClassName(query)` to select elements.
 
 ### `e().find(query)`
 
-> Change the selection to any child elements of the current selection matching the given query.
+> Create a new `eric` instance with any child elements of the current selection matching the given query.
 
 Use a `String` for `query`.
+
+Uses `element.querySelectorAll(query)` foreach selected element to select the new ones.
+
 
 ---
 
@@ -156,10 +159,10 @@ If `typeof query === 'string'`, this is equivalent to `eric.query(query).all().p
 
 > Pop the last element off of the current selection of an __`eric` *instance*__.
 
-If `getNode == true`, the actual `Node`/`HTMLElement` is returned instead of a new `eric` instance containing the popped element.
+If `getNode = true`, the actual `Node`/`HTMLElement` is returned instead of a new `eric` instance containing the popped element.
 
 __If the current selection is empty__, whereupon no element can be popped:
-* An empty eric instance will be returned by default (`empty == true`), on `empty == false`, `undefined` will be
+* An empty eric instance will be returned by default (`empty = true`), on `empty = false`, `undefined` will be
 returned instead;
 * If `(getNode && empty) == true`, an empty `e.emptyNode()` will be returned.
 
@@ -177,27 +180,79 @@ If `typeof query === 'string'`, this is equivalent to `eric.query(query).all().u
 
 > Pop the first element off of the current selection of an __`eric` *instance*__.
 
-If `getNode == true`, the actual `Node`/`HTMLElement` is returned instead of a new `eric` instance containing the popped element.
+If `getNode = true`, the actual `Node`/`HTMLElement` is returned instead of a new `eric` instance containing the popped element.
 
 __If the current selection is empty__, whereupon no element can be popped:
-* An empty eric instance will be returned by default (`empty == true`), on `empty == false`, `undefined` will be
+* An empty eric instance will be returned by default (`empty == true`), on `empty = false`, `undefined` will be
 returned instead;
 * If `(getNode && empty) == true`, an empty `e.emptyNode()` will be returned.
 
 
+### `e().create(tag, options = {})`
+
+> Create an element and push it to the current selection.
+
+Uses `document.createElement(tag)`.
+
+All `options` will be defined as properties of the created element.
+
+If `options.prepend = true`, the created element won't be `push`ed, but `unshift`ed to the selection.
+
+`options.attributes` may be an object of `key: value` pairs to be set as attributes (`Attr`) of the created `HTMLElement`.
+
+### `e().attach(parent, cloneAttach = false)`
+
+> Appends the selected elements as children to one or more parents.
+
+If `cloneAttach = false`, the selected elements will be attached to the first element matching the `parent` query.
+
+If `cloneAttach = true`, the selected elements will be cloned and attached to all elements matching the `parent` query.
+
+`parent` will be used in a [new `eric` constructor](#equery).
+
+
+### `e().append(elements, cloneAppend = false)`
+
+> Appends the given `elements` as children to the currently selected elements.
+
+If `cloneAppend = false`, the given `elements` will be appended to the first currently selected element.
+
+If `cloneAppend = true`, the given `elements` will be cloned and appended to all currently selected elements.
+
+`elements` will be used in a [new `eric` constructor](#equery).
+
+
+### `e().parents(getNodes = false)`
+
+> Get all parents of the currently selected elements.
+
+If `getNodes = true`, an array of Nodes will be returned instead of a new `eric` instance containing the parents. 
+
+
 ## Get selected elements
 
-### `e().first(nullable = true)`
+If `getNode = true` a `Node`/`HTMLElement` will be returned instead of a new `eric` instance containing the first
+element of the selection.
+
+If `empty = false` and no elements are currently selected, `undefined` is returned instead of a new empty `eric`
+instance (with `getNode = false`), or an empty `e.emptyNode()` (with `getNode = true`).
+
+
+### `e().first(getNode = false, empty = true)`
 
 > Returns the first of the selected elements.
 
-If `nullable = false` and no elements are currently selected, an empty `e.emptyNode()` is returned instead of `null`.
 
-### `e().last(nullable = true)`
+### `e().last(getNode = false, empty = true)`
 
 > Returns the last of the selected elements.
 
-If `nullable = false` and no elements are currently selected, an empty `e.emptyNode()` is returned instead of `null`.
+
+### `e().get(n, getNode = false, empty = true)`
+
+> Returns the nth selected element.
+
+Where `n` is your wanted index and `typeof n === 'number'`.
 
 
 ## Manipulate elements
@@ -260,8 +315,8 @@ e('nav .menu-item').class('is-active').toggle();
 
 #### `e().class(classnames).unify(returnClass = false)`
 
-> If the first selected element’s `classList` contains the given `classnames`, it will be added to the others. If it does
-> not contain them, they will be removed from all others.
+> If the first selected element’s `classList` contains the given `classnames`, they will be added to the others. If it
+> does not contain them, they will be removed from all other elements.
 
 Example:
 ```javascript
@@ -375,7 +430,11 @@ myInput.data('info', 'example value');
 
 ### `e().text(value = null)`
 
-> Get the `innerText` property of the first selected element or change it on all.
+> Get the `innerText` property of the first selected element or change `textContent` on all.
+
+### `e().getTextContent()`
+
+> Get the `textContent` property of the first selected element.
 
 ### `e().html(value = null)`
 
@@ -386,7 +445,28 @@ myInput.data('info', 'example value');
 > Get the `value` attribute of the first selected element or change it on all.
 
 
----
+## Manipulate the DOM structure
+
+
+### `e().remove(retain = false)`
+
+> Delete all selected elements from the DOM.
+
+If `retain = true`, the removed elements are not removed from the `eric` instance's selected elements list.
+
+
+### `e().empty(textContentMode = true, retainText = false)`
+
+> Delete all child elements of the selected elements.
+
+If `textContentMode = true`, each elements `textContent` property is set to an empty `String` (generally faster).
+<br>If `textContentMode = false`, each elements `innerHTML` property is set to an empty `String` instead.
+
+If `retainText = true`, direct child `TextNodes` and comments will be retained. In this case `textContentMode` will be
+ignored.
+
+
+## User interactions
 
 
 ### `e().focus()`
@@ -394,32 +474,59 @@ myInput.data('info', 'example value');
 > Focus the first selected element.
 
 
+### `e().bind(event, callback, whileCapture = false)`
+
+> Attach an event handler to the selected elements.
+
+
+### `e().trigger(event)`
+
+> Trigger an event on the selected elements.
+
+Use an instance of `Event`, or a `String` to create a `new Event(event)` with as parameter. 
+
+
 ## Static methods
 These can be used independently of `eric` instances.
 
-### `e.forEach(array, callback)`
+
+### `e.forEach(elements, callback, thisArg = undefined)`
 
 > **[static]** Call a function for each element of a given array.
+
+Signature of `callback`: `function(element, index, array)`
+
 
 ### `e.isNode(o)`
 
 > **[static]** Check if `o` actually is an instance of `Node`. Returns boolean.
 
+
 ### `e.isElement(o)`
 
 > **[static]** Check if `o` actually is an instance of `Element`. Returns boolean.
+
 
 ### `e.isHTMLElement(o)`
 
 > **[static]** Check if `o` actually is an instance of `HTMLElement`. Returns boolean.
 
+
 ### `e.mix(controller, mix)`
 
 > **[static]** Add all properties of `mix` as properties to `controller`.
+
 
 ### `e.listElements(elements = [])`
 
 > **[static]** Create an array from a given `HTMLCollection`, `NodeList`, `Array` or `Node`.
 
+
 ### `e.emptyNode()`
 > **[static]** Create an empty `TextNode`.
+
+
+### `e.create(tag)`
+> **[static]** Create an `eric` instance with an element.
+
+Uses `document.createElement(tag)`.
