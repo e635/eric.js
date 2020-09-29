@@ -263,18 +263,6 @@ Where `n` is your wanted index and `typeof n === 'number'`.
 
 Calls `e.forEach(elements, callback)` with the given `callback` on the selected elements. 
 
-### `e().on(event, callback, whileCapture = false)`
-
-> Bind a callback function to an event of every selected element.
-
-Example:
-
-```javascript
-e('button').on('click', function (event) {
-    alert('button clicked')
-});
-```
-
 
 ---
 
@@ -477,7 +465,12 @@ ignored.
 ### `e().bind(event, callback, whileCapture = false)`
 
 > Attach an event handler to the selected elements.
-
+>
+```javascript
+e('button').bind('click', function (event) {
+    alert('button clicked')
+});
+```
 
 ### `e().trigger(event)`
 
