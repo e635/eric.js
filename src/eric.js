@@ -322,7 +322,8 @@ const Eric = (function () {
 		};
 		
 		this.attach = function (parent, cloneAttach = false) {
-			parent = Eric(parent);
+			if (!parent instanceof Eric)
+				parent = Eric(parent);
 			if (cloneAttach) {
 				this.each((elm) => {
 					parent.each((p) => {
@@ -339,7 +340,8 @@ const Eric = (function () {
 		};
 		
 		this.append = function (elements, cloneAppend = false) {
-			elements = Eric(elements);
+			if (!elements instanceof Eric)
+				elements = Eric(elements);
 			if (cloneAppend) {
 				this.each((p) => {
 					elements.each((elm) => {
