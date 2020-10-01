@@ -208,7 +208,7 @@ If `cloneAttach = false`, the selected elements will be attached to the first el
 
 If `cloneAttach = true`, the selected elements will be cloned and attached to all elements matching the `parent` query.
 
-`parent` will be used in a [new `eric` constructor](#equery).
+If `parent` is not an existing `eric` instance, it will be used in a [new `eric` constructor](#equery).
 
 
 ### `e().append(elements, cloneAppend = false)`
@@ -219,7 +219,7 @@ If `cloneAppend = false`, the given `elements` will be appended to the first cur
 
 If `cloneAppend = true`, the given `elements` will be cloned and appended to all currently selected elements.
 
-`elements` will be used in a [new `eric` constructor](#equery).
+If `elements` is not an existing `eric` instance, it will be used in a [new `eric` constructor](#equery).
 
 
 ### `e().parents(getNodes = false)`
