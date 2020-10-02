@@ -45,6 +45,12 @@ const Eric = (function () {
 		});
 	}
 	
+	if (!String.prototype.replaceBetween) {
+		String.prototype.replaceBetween = function(start, end, replacement) {
+			return this.substr(0, start) + replacement + this.substr(end);
+		};
+	}
+	
 	'use strict';
 	
 	let Eric = function (query = null) {
