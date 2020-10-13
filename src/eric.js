@@ -360,6 +360,7 @@ const Eric = (function () {
 					p.appendChild(elm);
 				});
 			}
+			return this;
 		};
 		
 		this.parents = function (getNodes = false) {
