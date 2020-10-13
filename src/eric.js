@@ -84,7 +84,8 @@ const Eric = (function () {
 				return this.set(query);
 			
 			if (typeof query === "function")
-				if (document.readyState !== "loading") query()
+				if (typeof document === 'undefined') return undefined;
+				else if (document.readyState !== "loading") query();
 				else document.addEventListener("DOMContentLoaded", query);
 			
 		};
@@ -500,6 +501,18 @@ const Eric = (function () {
 		},
 		set: function config(value) {
 			Eric.mix(ericonf, value);
+		}
+	});
+	
+	Object.defineProperty(Eric, 'vw', {
+		get: function vw() {
+			return Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+		}
+	});
+	
+	Object.defineProperty(Eric, 'vh', {
+		get: function vh() {
+			return Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
 		}
 	});
 	
