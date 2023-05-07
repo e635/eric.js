@@ -1,26 +1,32 @@
 {
-    "name": "eric.js",
-    "version": "0.1.10",
-    "description": "A fast and tiny DOM navigation and manipulation library.",
-    "main": "src/eric.js",
-    "scripts": {
-        "build": "set NODE_ENV=production&&node build.js"
-    },
-    "keywords": [],
-    "author": "Eric Gesemann",
-    "license": "ISC",
-    "devDependencies": {
-        "steal": "^2.2.4",
-        "steal-tools": "^2.2.6"
-    },
-    "steal": {
-        "main": "build",
-        "npmIgnore": [
-            "devDependencies"
-        ]
-    },
-    "repository": {
-        "type": "git",
-        "url": "git@github.com:even0900/eric.js.git"
-    }
+  "name": "eric.js",
+  "version": "2.0",
+  "description": "A fast and tiny DOM navigation and manipulation library.",
+  "homepage": "https://github.com/e653/eric.js#readme",
+  "main": "src/eric.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/e653/eric.js.git"
+  },
+  "keywords": [
+    "javascript",
+    "dom",
+    "manipulation",
+    "browser",
+    "library"
+  ],
+  "author": {
+    "name": "Eric Gesemann <eric.ges.dev@gmail.com>",
+    "url": "https://ges.dev"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/e653/eric.js/issues"
+  }
 }

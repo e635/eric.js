@@ -23,6 +23,13 @@
 		padding-left: 4rem;
 	}
 	</style>
+
+	<script>
+		EOPT = {
+			globalName: "e"
+		}
+	</script>
+	<script src="../src/eric.js" type="text/javascript"></script>
 </head>
 <body>
 
@@ -35,42 +42,36 @@
 		<li id="f6" class="list-item">F6</li>
 	</ul>
 
-	<script src="../src/eric.js" type="text/javascript"></script>
-
 	<script>
-		Eric.config = {
-			windowIndex: 'e'
-		}
-	</script>
-
-	<script>
-		if (typeof a === 'undefined') { let a; }
-		function log(...eric) {
-			let a = eric.shift();
-			if (a.hasOwnProperty('elements')) {
-				console.log(...eric, a.elements);
-			} else {
-				console.log(...eric, a)
+		(function () {
+			let a;
+			function log(...eric) {
+				let a = eric.shift();
+				if (a.hasOwnProperty('elements')) {
+					console.log(...eric, a.elements);
+				} else {
+					console.log(...eric, a)
+				}
 			}
-		}
-		function pushunshift() {
-			a = e('#b2');
-			log(a);
-			a.push('#c3');
-			a.push('#d4');
-			a.push('#e5');
-			log(a, 'push');
-			a.unshift('#a1');
-			log(a, 'unshift');
-			log(a.shift(), '1. shift A');
-			log(a, '1. shift B');
-			log(a.pop(), '1. pop A');
-			log(a, '1. pop B');
-			log(a.shift(true), '2. shift A');
-			log(a, '2. shift B');
-			log(a.pop(true), '2. pop A');
-			log(a, '2. pop B');
-		}
+			function pushunshift() {
+				a = e('#b2');
+				log(a);
+				a.push('#c3');
+				a.push('#d4');
+				a.push('#e5');
+				log(a, 'push');
+				a.unshift('#a1');
+				log(a, 'unshift');
+				log(a.shift(), '1. shift A');
+				log(a, '1. shift B');
+				log(a.pop(), '1. pop A');
+				log(a, '1. pop B');
+				log(a.shift(true), '2. shift A');
+				log(a, '2. shift B');
+				log(a.pop(true), '2. pop A');
+				log(a, '2. pop B');
+			}
+		})();
 	</script>
 
 </body>
